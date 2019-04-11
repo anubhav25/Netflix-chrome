@@ -1,0 +1,13 @@
+{
+    "name": "Netflix Skip",
+    "version": "1.0",
+    "description": "Nothiing fancy just skips the into and jumps to next episode!",
+    "manifest_version": 2,
+    "permissions": ["*://*.netflix.com/watch/*"],
+    "content_scripts": [
+        {
+        "matches": ["*://*.netflix.com/watch/*"],
+        "js": ["work.js"]
+        }
+  ]
+}
