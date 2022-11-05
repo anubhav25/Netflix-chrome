@@ -33,7 +33,10 @@ const site = getSite();
 let already_hidden = null;
 let hidingJobId = null;
 
-function allChild(node, arr = []) {
+function allChild(node, arr = [], bottom = null) {
+  if (bottom && node === bottom) {
+    return arr;
+  }
   arr.push(node);
   for (let x of node.childNodes) {
     allChild(x, arr);
@@ -79,7 +82,7 @@ function hideControls() {
                   allChild(a).forEach(setVisible);
                 } else {
                   console.log("hiding all data except subtitles");
-                  allChild(a).forEach(setHidden);
+                  allChild(a, b).forEach(setHidden);
                 }
                 allParents(b, a).forEach(setVisible);
               }, 2000);
