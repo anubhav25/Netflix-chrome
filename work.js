@@ -13,9 +13,9 @@ const elementClasses = {
     next: "div.binge-btn-wrapper.show-btn button.filler",
   },
   [PRIME_VIDEO]: {
-    ad: ".adSkipButton ",
-    skip: ".skipElement",
-    next: ".nextUpCard",
+    ad: ".adSkipButton",
+    skip: "button.atvwebplayersdk-skipelement-button",
+    next: "div.atvwebplayersdk-nextupcard-button",
   },
 };
 
@@ -52,6 +52,22 @@ function hideControls() {
       default:
         return;
     }
+  }
+}
+
+function allChild(node, arr = []) {
+  arr.push(node);
+  for (let x of node.childNodes) {
+    allChild(x, arr);
+  }
+  return arr;
+}
+function allParents(node, upto, arr = []) {
+  arr.push(node);
+  if (upto === node) {
+    return arr;
+  } else {
+    return allParents(node.parentNode, upto, arr);
   }
 }
 
