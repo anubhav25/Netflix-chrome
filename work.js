@@ -1,23 +1,5 @@
-const NETFLIX = "netflix";
-const HOTSTAR = "hotstar";
-const PRIME_VIDEO = "primevideo";
+// HELPER FUNCTIONS
 
-const elementClasses = {
-  [NETFLIX]: {
-    skip: "button.watch-video--skip-content-button",
-    next: 'button[data-uia="next-episode-seamless-button"]',
-    next2: 'button[data-uia="next-episode-seamless-button-draining"]',
-  },
-  [HOTSTAR]: {
-    skip: "div.binge-btn-wrapper.show-btn button.primary",
-    next: "div.binge-btn-wrapper.show-btn button.filler",
-  },
-  [PRIME_VIDEO]: {
-    ad: ".adSkipButton",
-    skip: "button.atvwebplayersdk-skipelement-button",
-    next: "div.atvwebplayersdk-nextupcard-button",
-  },
-};
 
 function getSite() {
   const location = window.location.href;
@@ -28,18 +10,13 @@ function getSite() {
   }
 }
 
-const site = getSite();
-
-let already_hidden = null;
-let hidingJobId = null;
-
-function allChild(node, bottom = null, arr = []) {
-  if (bottom && node === bottom) {
+function allChild(node, exceptions = [], arr = []) {
+  if (!node || exceptions.includes(node)) {
     return arr;
   }
   arr.push(node);
   for (let x of node.childNodes) {
-    allChild(x, bottom, arr);
+    allChild(x, exceptions, arr);
   }
   return arr;
 }
@@ -63,6 +40,43 @@ function setHidden(node) {
   } catch {}
 }
 
+
+
+// HELPER FUNCTIONS ENDS
+
+
+
+const NETFLIX = "netflix";
+const HOTSTAR = "hotstar";
+const PRIME_VIDEO = "primevideo";
+
+const elementClasses = {
+  [NETFLIX]: {
+    skip: "button.watch-video--skip-content-button",
+    next: 'button[data-uia="next-episode-seamless-button"]',
+    next2: 'button[data-uia="next-episode-seamless-button-draining"]',
+  },
+  [HOTSTAR]: {
+    skip: "div.binge-btn-wrapper.show-btn button.primary",
+    next: "div.binge-btn-wrapper.show-btn button.filler",
+  },
+  [PRIME_VIDEO]: {
+    ad: {
+      cssSelector: ".atvwebplayersdk-infobar-container.show",
+      customLogic: (el) => allChild(el).find(x => x.textContent === 'Skip')
+    },
+    skip: "button.atvwebplayersdk-skipelement-button",
+    next: "div.atvwebplayersdk-nextupcard-button",
+  },
+};
+
+
+const site = getSite();
+
+let already_hidden = null;
+let hidingJobId = null;
+
+
 function hideControls() {
   if (site) {
     switch (site) {
@@ -82,7 +96,7 @@ function hideControls() {
                   allChild(a).forEach(setVisible);
                 } else {
                   console.log("hiding all data except subtitles");
-                  allChild(a, b).forEach(setHidden);
+                  allChild(a, [b]).forEach(setHidden);
                 }
                 allParents(b, a).forEach(setVisible);
               }, 2000);
@@ -98,10 +112,20 @@ function hideControls() {
 }
 
 function getElements(selectors) {
+  function getElement(key) {
+    let selector = selectors[key];
+    if (!selector) {
+      return;
+    }
+    if (typeof selector !== 'string') {
+      const { cssSelector, customLogic } = selector;
+      return customLogic(document.querySelector(cssSelector))
+    }
+    return document.querySelector(selector);
+  }
   elements = {};
   for (const key in selectors) {
-    const selector = selectors[key];
-    const element = selector && document.querySelector(selector);
+    const element = getElement(key);
     if (element) {
       elements[key] = element;
     }
