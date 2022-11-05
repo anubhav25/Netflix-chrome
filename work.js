@@ -30,30 +30,8 @@ function getSite() {
 
 const site = getSite();
 
-function hideControls() {
-  if (site) {
-    switch (site) {
-      case PRIME_VIDEO: {
-        window.addEventListener("keypress", function (event) {
-          // If the user presses the "Enter" key on the keyboard
-          if (["p", "P"].includes(event.key)) {
-            const currentStyle = document.querySelector(".webPlayerUIContainer")
-              .style.display;
-            if (currentStyle === "none") {
-              document.querySelector(".webPlayerUIContainer").style.display =
-                "";
-            } else {
-              document.querySelector(".webPlayerUIContainer").style.display =
-                "none";
-            }
-          }
-        });
-      }
-      default:
-        return;
-    }
-  }
-}
+let already_hidden = null;
+let hidingJobId = null;
 
 function allChild(node, arr = []) {
   arr.push(node);
@@ -64,10 +42,55 @@ function allChild(node, arr = []) {
 }
 function allParents(node, upto, arr = []) {
   arr.push(node);
-  if (upto === node) {
-    return arr;
-  } else {
+  if (node && upto !== node && node.parentNode) {
     return allParents(node.parentNode, upto, arr);
+  }
+  return arr;
+}
+
+function setVisible(node) {
+  try {
+    node.style.visibility = "visible";
+  } catch {}
+}
+
+function setHidden(node) {
+  try {
+    node.style.visibility = "hidden";
+  } catch {}
+}
+
+function hideControls() {
+  if (site) {
+    switch (site) {
+      case PRIME_VIDEO: {
+        window.addEventListener("keypress", function (event) {
+          // If the user presses the "Enter" key on the keyboard
+          if (["p", "P"].includes(event.key)) {
+            clearInterval(hidingJobId);
+            ((hidden) => {
+              hidingJobId = setInterval(() => {
+                const a = document.querySelector(".webPlayerUIContainer");
+                const b = document.querySelector(
+                  ".atvwebplayersdk-captions-text"
+                );
+                if (hidden) {
+                  console.log("UN-hiding all data except subtitles");
+                  allChild(a).forEach(setVisible);
+                } else {
+                  console.log("hiding all data except subtitles");
+                  allChild(a).forEach(setHidden);
+                }
+                allParents(b, a).forEach(setVisible);
+              }, 2000);
+            })(!!already_hidden);
+            already_hidden = !already_hidden;
+          }
+        });
+      }
+      default:
+        return;
+    }
   }
 }
 
