@@ -33,13 +33,13 @@ const site = getSite();
 let already_hidden = null;
 let hidingJobId = null;
 
-function allChild(node, arr = [], bottom = null) {
+function allChild(node, bottom = null, arr = []) {
   if (bottom && node === bottom) {
     return arr;
   }
   arr.push(node);
   for (let x of node.childNodes) {
-    allChild(x, arr);
+    allChild(x, bottom, arr);
   }
   return arr;
 }
