@@ -50,7 +50,7 @@ function allParents(node, upto, arr = []) {
 
 function setVisible(node) {
   try {
-    node.style.visibility = "visible";
+    node.style.visibility = "";
   } catch {}
 }
 
