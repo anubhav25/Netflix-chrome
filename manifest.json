@@ -2,15 +2,12 @@
   "name": "Skip Intro and next epi",
   "version": "1.0",
   "description": "Nothiing fancy just skips the into and jumps to next episode!",
-  "manifest_version": 2,
-  "permissions": [
-    "*://*.netflix.com/watch/*",
-    "*://*.primevideo.com/*"
-  ],
+  "manifest_version": 3,
   "content_scripts": [
     {
       "matches": [
-        "*://*.netflix.com/watch/*",
+        "*://*.netflix.com/*",
+        "*://*.hotstar.com/*",
         "*://*.primevideo.com/*"
       ],
       "js": [
